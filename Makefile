@@ -41,19 +41,19 @@ cleaner: clean
 
 #Link
 $(TARGETDIR)/%: $(BUILDDIR)/%.$(OBJEXT) | $(TARGETDIR)
-	mkdir -p $(dir $@)
+	@mkdir -p $(dir $@)
 	$(LINKER) $(LFLAGS) $< $(LIB) $(INC) -o $@
 
 #Compile
 $(BUILDDIR)/%.$(OBJEXT): $(SRCDIR)/%.$(SRCEXT) | $(BUILDDIR)
-	mkdir -p $(dir $@)
+	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -o $@ $<
 
 $(TARGETDIR):
-	mkdir -p $(TARGETDIR)
+	@mkdir -p $(TARGETDIR)
 
 $(BUILDDIR):
-	mkdir -p $(BUILDDIR)
+	@mkdir -p $(BUILDDIR)
 
 #Non-File Targets
 .PHONY: all remake clean cleaner resources
