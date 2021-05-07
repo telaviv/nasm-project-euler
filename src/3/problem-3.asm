@@ -91,15 +91,17 @@ isPrime:
     
 
 isDivisible:
+%push
+%stacksize flat
+%arg dividend:dword, divisor:dword
     enter	0, 0
-    push dword [ebp + 8]
-    push dword [ebp + 12]
     xor	    edx, edx
-    mov     eax, [ebp + 8]
-    div     dword [ebp + 12]
+    mov     eax, [dividend]
+    div     dword [divisor]
     mov	    eax, edx
     leave
     ret
+%pop
 
 print:
     enter	8, 0
