@@ -5,10 +5,22 @@ global _start
     
 section .text
 
-%macro resetStack 1
+%macro resetstack 1
     mov esp, ebp
     sub	esp, %1
 %endmacro
+
+%macro return 1
+    mov     eax, %1
+    leave
+    ret
+%endmacro    
+
+%macro return 0
+    leave
+    ret
+%endmacro    
+
 
 _start:
     push	3
@@ -49,12 +61,10 @@ largestPrimeFactor:
     jne     .loop
     mov     ecx, [i]
     mov     [largest], ecx
-    resetStack %$localsize
+    resetstack %$localsize
     jmp     .loop
 .finish:
-    mov     eax, [largest]
-    leave
-    ret
+    return [largest]
 %pop
 
 
@@ -76,7 +86,7 @@ isPrime:
     call	isDivisible
     cmp	    eax, 0
     je      .fail
-    resetStack %$localsize
+    resetstack %$localsize
     jmp     .loop
 .fail:
     mov     eax, 0
@@ -85,8 +95,7 @@ isPrime:
     mov eax, 1
     jmp .end
 .end:
-    leave
-    ret
+    return
 %pop
     
 
@@ -99,8 +108,7 @@ isDivisible:
     mov     eax, [dividend]
     div     dword [divisor]
     mov	    eax, edx
-    leave
-    ret
+    return
 %pop
 
 print:
@@ -108,8 +116,7 @@ print:
     push	dword [ebp + 8]
     push	format
     call	printf
-    leave
-    ret
+    return
 
 debug:
     enter   0, 0
@@ -117,8 +124,7 @@ debug:
     push	dword [ebp + 12]
     push	dbgFormat
     call	printf
-    leave
-    ret
+    return
     
 
 section .data
