@@ -76,7 +76,7 @@ isPrime:
     call	isDivisible
     cmp	    eax, 0
     je      .fail
-    mov	    esp, ebp
+    resetStack %$localsize
     jmp     .loop
 .fail:
     mov     eax, 0
