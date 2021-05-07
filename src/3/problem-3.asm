@@ -2,24 +2,27 @@ extern exit
 extern printf
 
 global _start
-    
+
 section .text
+
 
 %macro resetstack 1
     mov esp, ebp
     sub	esp, %1
 %endmacro
 
+
 %macro return 1
     mov     eax, %1
     leave
     ret
-%endmacro    
+%endmacro
+
 
 %macro return 0
     leave
     ret
-%endmacro    
+%endmacro
 
 
 _start:
@@ -40,12 +43,12 @@ largestPrimeFactor:
 %push
 %stacksize flat
 %arg value:dword
-%assign %$localsize 0 
+%assign %$localsize 0
 %local i:dword, largest:dword
     enter	%$localsize, 0
     mov     [i], dword 1
     mov     [largest], dword 0
-.loop:                           
+.loop:
     inc     dword [i]
     mov     ecx, [i]
     cmp     ecx, [value]
@@ -72,11 +75,11 @@ isPrime:
 %push
 %stacksize flat
 %arg value:dword
-%assign %$localsize 0 
+%assign %$localsize 0
 %local i:dword
     enter	%$localsize, 0
     mov     [i], dword 1
-.loop:                           
+.loop:
     inc     dword [i]
     mov	    ebx, [value]
     cmp     ebx, [i]
@@ -97,7 +100,7 @@ isPrime:
 .end:
     return
 %pop
-    
+
 
 isDivisible:
 %push
@@ -125,8 +128,8 @@ debug:
     push	dbgFormat
     call	printf
     return
-    
+
 
 section .data
-    format db `%d\n`, 0
+    format    db `%d\n`, 0
     dbgFormat db `%d: %d\n`, 0

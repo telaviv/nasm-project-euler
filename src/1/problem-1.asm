@@ -8,7 +8,7 @@ section .text
 _start:
     mov ebx,0
     mov ecx,0
-    
+
 check:
     inc ebx
     cmp ebx,1000
@@ -34,7 +34,7 @@ check:
 accumulate:
     add ecx,ebx
     jmp check
-    
+
 print:
     push ecx
     push format

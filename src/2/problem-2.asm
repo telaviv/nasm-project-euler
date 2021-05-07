@@ -9,7 +9,7 @@ _start:
     push dword 0
     push dword 1
     mov ebx, 0  ; sum of evens
-    
+
 fib:
     call debug
     mov eax, [esp]
