@@ -25,6 +25,11 @@ section .text
 %endmacro
 
 
+%macro enter 0
+    enter 0, 0
+%endmacro
+
+
 _start:
     push	3
     mov     ebp, esp
@@ -106,7 +111,7 @@ isDivisible:
 %push
 %stacksize flat
 %arg dividend:dword, divisor:dword
-    enter	0, 0
+    enter
     xor	    edx, edx
     mov     eax, [dividend]
     div     dword [divisor]
@@ -115,14 +120,14 @@ isDivisible:
 %pop
 
 print:
-    enter	8, 0
+    enter
     push	dword [ebp + 8]
     push	format
     call	printf
     return
 
 debug:
-    enter   0, 0
+    enter
     push	dword [ebp + 8]
     push	dword [ebp + 12]
     push	dbgFormat

@@ -12,7 +12,7 @@ DEPEXT      := d
 OBJEXT      := o
 
 #Flags, Libraries and Includes
-CFLAGS      := -felf -Worphan-labels
+CFLAGS      := -felf -Worphan-labels -w-macro-params
 LFLAGS		:= -m elf_i386
 LIB         := -lc
 INC         := -I /lib32/ld-linux.so.2
