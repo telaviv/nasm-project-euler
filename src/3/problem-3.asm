@@ -20,7 +20,7 @@ _start:
     call	exit
 
 largestPrimeFactor:
-%push mycontext
+%push
 %stacksize flat
 %arg value:dword
 %assign %$localsize 0 
@@ -49,32 +49,38 @@ largestPrimeFactor:
     mov     eax, [largest]
     leave
     ret
-    
+%pop
+
 
 isPrime:
-    enter	0, 0
-    mov     edi, [ebp + 8]
-    mov     ecx, 1
+%push
+%stacksize flat
+%arg value:dword
+%assign %$localsize 0 
+%local i:dword
+    enter	%$localsize, 0
+    mov     [i], dword 1
 .loop:                           
-    inc     ecx
-    cmp     ecx, edi
+    inc     dword [i]
+    mov	    ebx, [value]
+    cmp     ebx, [i]
     je      .succeed
-    push	ecx
-    push	edi
+    push	dword [i]
+    push	dword [value]
     call	isDivisible
-    cmp	eax, 0
-    je .fail
-    sub esp, 8
-    jmp .loop
+    cmp	    eax, 0
+    je      .fail
+    jmp     .loop
 .fail:
-    mov eax, 0
-    jmp .end
+    mov     eax, 0
+    jmp     .end
 .succeed:
     mov eax, 1
     jmp .end
 .end:
     leave
     ret
+%pop
     
 
 isDivisible:
