@@ -11,7 +11,7 @@ _start:
     
 check:
     inc ebx
-    cmp ebx,10
+    cmp ebx,1000
     je	print
 
     mov edx,0
