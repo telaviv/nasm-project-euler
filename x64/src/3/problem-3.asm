@@ -7,19 +7,42 @@ extern    printf
 
 section   .text
 main:
-    mov rbp, rsp
-    mov r12, 1
-.loop:
-    mov  rsp, rbp
-    inc  r12
-    mov  rdi, r12
-    call isprime
+    mov rdi, 600851475143
+    call maxprimefactor
     mov  rdi, format
-    mov  rsi, r12
+    mov  rsi, 600851475143
     mov  rdx, rax
     mov  rax, 0
     call printf wrt ..plt
-    jmp  .loop
+    ret
+
+maxprimefactor:
+    push rbp
+    mov  rbp, rsp
+    push rdi
+    shr  rdi, 1
+    push rdi
+    mov  r13, 1
+    mov  r14, 0
+.loop:
+    inc   r13,
+    cmp   r13, [rbp - 0x10]
+    jg    .finish
+    xor	  rdx, rdx
+    mov   rax, [rbp - 0x8]
+    div   r13
+    cmp   rdx, 0
+    jne	  .loop
+    mov   rdi, r13
+    call  isprime
+    cmp   rax, 1
+    cmove r14, r13
+    jmp   .loop
+.finish:
+    mov rax, r14
+    mov rsp, rbp
+    pop rbp
+    ret
 
 isprime:
     push rbp
