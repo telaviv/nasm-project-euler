@@ -36,50 +36,72 @@ section .text
     div     dword %2
 %endmacro
 
+%macro minc 2
+    mov eax, %1
+    mov edx, %2
+    add eax, 1
+    adc edx
+    mov %1, eax
+    mov %2, edx
+%endmacro
 
 _start:
-    push	3
-    mov     ebp, esp
-.loop:
-    inc	    dword [esp]
-    call    largestPrimeFactor
-    push	eax
-    call	debug
-    mov     esp, ebp
-    jmp     .loop
-
     push	0
-    call	exit
+    push	13
+    call	iterate
+
+iterate:
+%push
+%stacksize flat
+%arg lo:dword, hi:dword
+    enter
+.loop:
+    reset
+    inc	    dword [lo]
+    jnc     .primefactor
+    inc	    dword [hi]
+.primefactor:
+    push	dword [hi]
+    push	dword [lo]
+    call    largestPrimeFactor
+    push    dword [lo]
+    push    dword [hi]
+    push	eax,
+    push    edx
+    call	debug
+    jmp     .loop
+%pop
 
 largestPrimeFactor:
 %push
 %stacksize flat
-%arg value:dword
+%arg lo:dword, hi:dword
 %assign %$localsize 0
-%local i:dword, largest:dword
+%local i:dword, max:dword
     enter	%$localsize, 0
+    push	dword [hi]
+    push	dword [lo]
+    call    sqrt
+    mov	    [max], eax
     mov     [i], dword 1
-    mov     [largest], dword 0
 .loop:
-    reset %$localsize
+    reset   %$localsize
     inc     dword [i]
-    mov     ecx, [i]
-    cmp     ecx, [value]
-    je      .finish
+    mov	    eax, [i]
+    cmp     eax, [max]
+    je	    .finished
     push	dword [i]
-    push	dword [value]
-    call	isDivisible
-    cmp	    eax, 0
-    jne     .loop
-    push	dword [i]
-    call	isPrime
-    cmp     eax, 1
-    jne     .loop
-    mov     ecx, [i]
-    mov     [largest], ecx
-    jmp     .loop
-.finish:
-    return [largest]
+    push	dword [hi]
+    push    dword [lo]
+    call	divisibilityPartner
+    mov     ebx, eax
+    or      ebx, edx
+    jz	    .loop
+    return
+.finished:
+    mov eax, 0
+    mov edx, 0
+    return
 %pop
 
 
@@ -98,9 +120,10 @@ isPrime:
     cmp     ebx, [i]
     je      .succeed
     push	dword [i]
+    push    dword 0
     push	dword [value]
     call	isDivisible
-    cmp	    eax, 0
+    cmp	    eax, 1
     je      .fail
     jmp     .loop
 .fail:
@@ -117,10 +140,92 @@ isPrime:
 isDivisible:
 %push
 %stacksize flat
-%arg dividend:dword, divisor:dword
+%arg lo:dword, hi:dword, divisor:dword
     enter
-    div     [dividend], [divisor]
-    mov	    eax, edx
+    mov	edx, [hi]
+    mov eax, [lo]
+.loop:
+    cmp edx, 0
+    jg	.calculateone
+.calculatemulti:
+    sub eax, [divisor]
+    sbb edx, 0
+    jc  .fail
+    jmp .loop
+.calculateone:
+    sub eax, [divisor]
+    jz	.succeed
+    jc	.fail
+    jmp	.loop
+.fail:
+    return 0
+.succeed:
+    return 1
+%pop
+
+
+divisibilityPartner:
+%push
+%stacksize flat
+%arg lo:dword, hi:dword, divisor:dword
+    enter
+    mov ebx, [lo]
+    mov ecx, [hi]
+    mov eax, 0
+    mov edx, 0
+.loop:
+    cmp ecx, 0
+    je .solo
+    sub	ebx, [divisor]
+    sbb	edx, 0
+    jc	.fail
+    jmp .reloop
+.solo:
+    sub	ebx, [divisor]
+    jz	.succeed
+    jc	.fail
+    jmp	.reloop
+.fail:
+    mov eax, 0
+    mov edx, 0
+    test eax, eax
+    return
+.reloop:
+    add eax, 1
+    adc edx, 0
+    jmp .loop
+.succeed:
+    add eax, 1
+    adc edx, 0
+    return
+%pop
+
+
+sqrt:
+%push
+%stacksize flat
+%arg lo:dword, hi:dword
+%assign %$localsize 0
+%local i:dword
+    enter %$localsize, 0
+    mov [i], dword 0
+.loop:
+    inc dword [i]
+    mov eax, [i]
+    mul eax
+    cmp edx, [hi]
+    jg  .toobig
+    cmp eax, [lo]
+    jg  .toobig
+    je  .equal
+    jmp .loop
+.equal:
+    mov eax, [i]
+    jmp .end
+.toobig:
+    mov eax, [i]
+    dec eax
+.end:
     return
 %pop
 
@@ -132,14 +237,20 @@ print:
     return
 
 debug:
+%push
+%stacksize flat
+%arg alo:dword, ahi:dword, blo:dword, bhi:dword
     enter
-    push	dword [ebp + 8]
-    push	dword [ebp + 12]
+    push	dword [alo]
+    push    dword [ahi]
+    push	dword [blo]
+    push    dword [bhi]
     push	dbgFormat
     call	printf
     return
+%pop
 
 
 section .data
     format    db `%d\n`, 0
-    dbgFormat db `%d: %d\n`, 0
+    dbgFormat db `[%x, %x]: [%x, %x]\n`, 0
