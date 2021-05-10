@@ -54,6 +54,13 @@ main:
 
 length:
     enter
+    call  stringify
+    mov   rdi, buffer
+    call  strlen wrt ..plt
+    return
+
+stringify:
+    enter
     mov   rax,  0
     push  0                     ; i have no idea why this is necessary
     mov   rcx, rdi
@@ -61,10 +68,7 @@ length:
     mov   rsi, buffersize
     mov   rdx, fmt
     call  snprintf wrt ..plt
-    mov   rdi, buffer
-    call  strlen wrt ..plt
     return
-
 
 section .data
     fmt    db `%u`, 0
