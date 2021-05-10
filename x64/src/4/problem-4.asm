@@ -8,10 +8,10 @@ extern    printf, snprintf, strlen
 %define true 1
 %define false 0
 
-%assign strlength 2
-%assign minvalue 9
-%assign maxvalue 99
-%assign buffersize 16
+%assign strlength 3
+%assign minvalue 99
+%assign maxvalue 999
+%assign buffersize 32
 
 %macro enter 0-1 0
     enter %1, 0
