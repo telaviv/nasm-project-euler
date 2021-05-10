@@ -9,7 +9,7 @@ extern    printf, snprintf, strlen
 %define false 0
 
 %assign strlength 2
-%assign minvalue 10
+%assign minvalue 9
 %assign maxvalue 99
 %assign buffersize 16
 
@@ -53,11 +53,48 @@ main:
     ret
 
 largestpalindrome:
-    enter
-    mov rdi, 111
-    call ispalindrome
-    return
-
+%push
+%stacksize flat64
+%assign %$localsize 0
+%local max:qword
+    enter %$localsize
+    mov r14, minvalue
+    mov r15, minvalue
+    mov rax, 0
+    mov [max], rax
+.loopa:
+    inc r14
+    cmp r14, maxvalue
+    jg  .finisha
+.loopb:
+    inc   r15
+    cmp   r15, maxvalue
+    jg    .finishb
+    mov   rax, 0
+    mov   rdi, dbgfmt
+    mov   rsi, r14
+    mov   rdx, r15
+    call  printf wrt ..plt
+    mov   rsp, rbp
+    sub   rsp, %$localsize
+    mov   rax, r14
+    mul   r15
+    push  rax
+    mov   rdi, rax
+    call  ispalindrome
+    cmp   rax, true
+    jne   .loopb
+    pop   rax
+    cmp   rax, [max]
+    jng  .loopb
+    mov   [max], rax
+    jmp   .loopb
+.finishb:
+    mov  r15, 0
+    jmp  .loopa
+.finisha:
+    return [max]
+%pop
 
 ispalindrome:
 %push
@@ -99,10 +136,13 @@ length:
     call  strlen wrt ..plt
     return
 
+
 stringify:
     enter
+    mov   rbx,  15
+    not   rbx
+    and   rsp, rbx
     mov   rax,  0
-    push  0                     ; i have no idea why this is necessary
     mov   rcx, rdi
     mov   rdi, buffer
     mov   rsi, buffersize
