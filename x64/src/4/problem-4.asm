@@ -45,13 +45,19 @@ extern    printf, snprintf, strlen
 
 section   .text
 main:
-    mov rdi, 111
-    call ispalindrome
+    call largestpalindrome
     mov rdi, fmt
     mov rsi, rax
     mov rax,  0
     call printf wrt ..plt
     ret
+
+largestpalindrome:
+    enter
+    mov rdi, 111
+    call ispalindrome
+    return
+
 
 ispalindrome:
 %push
