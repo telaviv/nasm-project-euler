@@ -9,6 +9,8 @@ extern    printf, snprintf, strlen
 %define false 0
 
 %assign strlength 2
+%assign minvalue 10
+%assign maxvalue 99
 %assign buffersize 16
 
 %macro enter 0-1 0
@@ -43,17 +45,13 @@ extern    printf, snprintf, strlen
 
 section   .text
 main:
-    mov r12, 0
-.loop:
-    inc r12
-    mov rdi, r12
+    mov rdi, 111
     call ispalindrome
-    mov rdi, dbgfmt
-    mov rsi, r12
-    mov rdx, rax
+    mov rdi, fmt
+    mov rsi, rax
     mov rax,  0
     call printf wrt ..plt
-    jmp .loop
+    ret
 
 ispalindrome:
 %push
