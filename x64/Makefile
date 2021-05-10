@@ -12,8 +12,8 @@ DEPEXT      := d
 OBJEXT      := o
 
 #Flags, Libraries and Includes
-CFLAGS      := -felf64 -Worphan-labels -w-macro-params
-LFLAGS		:= -lc -fPIE
+CFLAGS      := -felf64 -Worphan-labels -w-macro-params -g -Fdwarf
+LFLAGS      := -lc -fPIE
 LIB         :=
 INC         :=
 

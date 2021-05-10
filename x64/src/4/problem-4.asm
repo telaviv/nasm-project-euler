@@ -11,16 +11,16 @@ extern    printf, snprintf, strlen
 %assign strlength 2
 %assign buffersize 16
 
-%macro enter 0
-    enter 0, 0
+%macro enter 0-1 0
+    enter %1, 0
 %endmacro
 
 %macro reset 0-1 0
-    mov esp, ebp + $1
+    mov esp, ebp + %1
 %endmacro
 
 %macro ccall 1
-    call $1 wrt ..plt
+    call %1 wrt ..plt
 %endmacro
 
 %macro return 0
@@ -29,13 +29,16 @@ extern    printf, snprintf, strlen
 %endmacro
 
 %macro return 1
-    mov rax, $1
-    return
+    mov rax, %1
+    leave
+    ret
 %endmacro
 
 %macro return 2
-    mov rdx, $2
-    return $1
+    mov rdx, %2
+    mov rax, %1
+    leave
+    ret
 %endmacro
 
 section   .text
@@ -44,13 +47,46 @@ main:
 .loop:
     inc r12
     mov rdi, r12
-    call length
+    call ispalindrome
     mov rdi, dbgfmt
     mov rsi, r12
     mov rdx, rax
     mov rax,  0
     call printf wrt ..plt
     jmp .loop
+
+ispalindrome:
+%push
+%stacksize flat64
+%assign %$localsize 0
+%local lo:qword, hi:qword
+    enter 0x10
+    mov  r13, rdi
+    call length
+    mov  r8, qword 0
+    mov  [lo],  r8
+    mov  [hi], rax
+    dec  qword [hi]
+    mov  rdi, r13
+    call stringify
+.loop:
+    mov    rax, [lo]
+    mov    rbx, [hi]
+    cmp    rax, rbx
+    jge    .succeed
+    mov    r9, buffer
+    movzx  rcx, byte [r9 + rax]
+    movzx  rdx, byte [r9 + rbx]
+    cmp    rcx, rdx
+    jne    .fail
+    inc    qword [lo]
+    dec    qword [hi]
+    jmp    .loop
+.succeed:
+    return true
+.fail:
+    return false
+
 
 length:
     enter
